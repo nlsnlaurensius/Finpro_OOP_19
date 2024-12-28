@@ -1,12 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Arc3 : MonoBehaviour
 {
-    void OnEnable()
+    [SerializeField] private Vector2 spawnPosition = new Vector2(-25.5f, -1.45f);
+
+    private void OnEnable()
     {
+        StartCoroutine(PlayVideoAndTransition());
+    }
+
+    private System.Collections.IEnumerator PlayVideoAndTransition()
+    {
+        // Load Level 3
         SceneManager.LoadScene("Level 3", LoadSceneMode.Single);
+
+        // Wait for the scene to load
+        yield return new WaitForEndOfFrame();
+
+        // Get the player reference after the scene is loaded
+        GameObject player = LevelPortal.GetCachedPlayer();
+        if (player != null)
+        {
+            // Set player position for Level 3
+            player.transform.position = spawnPosition;
+
+            // Enable the player's components
+            var rb = player.GetComponent<Rigidbody2D>();
+            if (rb != null) rb.simulated = true;
+
+            var movement = player.GetComponent<PlayerMovement>();
+            if (movement != null) movement.enabled = true;
+
+            var renderer = player.GetComponent<SpriteRenderer>();
+            if (renderer != null) renderer.enabled = true;
+        }
     }
 }

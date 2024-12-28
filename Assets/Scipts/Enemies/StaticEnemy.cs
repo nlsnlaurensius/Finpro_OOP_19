@@ -46,7 +46,7 @@ public class StaticEnemy : MonoBehaviour
             var projectile = currentFireball.GetComponent<EnemyProjectile>();
             if (projectile != null)
             {
-                projectile.SetDirection(transform.localScale.x < 0 ? -1 : 1);
+                projectile.SetDirection(transform.localScale.x < 0 ? 1 : -1);
                 projectile.ActivateProjectile(projectileSpeed);
             }
         }
@@ -72,6 +72,7 @@ public class StaticEnemy : MonoBehaviour
                 playerHealth.TakeDamage(damage);
                 Debug.Log("Player terkena damage sebesar " + damage);
             }
+            SoundManager.PlaySFX("hit");
         }
     }
 }

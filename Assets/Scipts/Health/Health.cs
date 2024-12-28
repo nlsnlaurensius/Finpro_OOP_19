@@ -10,15 +10,23 @@ public class Health : MonoBehaviour
     [SerializeField] private float respawnDelay = 2f;
     private PlayerRespawn playerRespawn;
 
+    SoundManager soundManager;
+
     private void Awake()
     {
         currentHealth = startingHealth;
         anim = GetComponent<Animator>();
         playerRespawn = GetComponent<PlayerRespawn>();
-        
+        soundManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<SoundManager>();
+
         if (playerRespawn == null)
         {
             Debug.LogError("PlayerRespawn component not found on player!");
+        }
+
+        if (soundManager == null)
+        {
+            Debug.LogError("SoundManager component not found!");
         }
     }
 
@@ -32,6 +40,9 @@ public class Health : MonoBehaviour
             {
                 anim.SetTrigger("hurt");
             }
+
+            // Play hit sound when taking damage
+            SoundManager.PlaySFX("hit");
         }
         else
         {
@@ -41,15 +52,19 @@ public class Health : MonoBehaviour
                 {
                     anim.SetTrigger("die");
                 }
-                
+
                 var playerMovement = GetComponent<PlayerMovement>();
                 if (playerMovement != null)
                 {
                     playerMovement.enabled = false;
                 }
-                
+
                 dead = true;
                 Debug.Log("Player died, initiating respawn sequence...");
+
+                // Play death sound when player dies
+                soundManager.PlaySFX(soundManager.death);
+
                 Invoke("Respawn", respawnDelay);
             }
         }
@@ -62,20 +77,23 @@ public class Health : MonoBehaviour
         {
             dead = false;
             currentHealth = startingHealth;
-            
+
             var playerMovement = GetComponent<PlayerMovement>();
             if (playerMovement != null)
             {
                 playerMovement.enabled = true;
             }
-            
+
             if (anim != null)
             {
+                // Reset all parameters and states
+                anim.Rebind();
+                anim.Update(0f);
                 anim.ResetTrigger("die");
-                anim.ResetTrigger("hurt");   
-                anim.Play("Idle"); 
+                anim.ResetTrigger("hurt");
+                anim.Play("Idle", 0, 0f);
             }
-            
+
             playerRespawn.Respawn();
             Debug.Log("Player has been respawned with full health: " + currentHealth);
         }

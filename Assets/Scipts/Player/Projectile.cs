@@ -1,8 +1,8 @@
 using UnityEngine;
 public class Projectile : MonoBehaviour
 {
-    [SerializeField] private float speed = 0.5f;
-    [SerializeField] private float damage = 0.25f;
+    [SerializeField] private float speed = 5f;
+    [SerializeField] private float damage = 0.5f;
     private float direction;
     private bool hit;
     private Animator anim;
@@ -41,6 +41,7 @@ public class Projectile : MonoBehaviour
             {
                 enemyHealth.TakeDamage(damage);
                 Debug.Log($"Hit enemy! Damage dealt: {damage}"); // Debug log untuk memverifikasi hit
+                SoundManager.PlaySFX("explosion");
             }
         }
 

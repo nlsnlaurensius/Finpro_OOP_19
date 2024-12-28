@@ -7,6 +7,7 @@ TagManager:
   - Ground
   - Enemy
   - Checkpoint
+  - Audio
   layers:
   - Default
   - TransparentFX
@@ -61,4 +62,7 @@ TagManager:
     locked: 0
   - name: Ground
     uniqueID: 4159302787
+    locked: 0
+  - name: skill
+    uniqueID: 632994723
     locked: 0

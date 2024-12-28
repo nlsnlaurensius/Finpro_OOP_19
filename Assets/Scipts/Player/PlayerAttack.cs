@@ -9,10 +9,13 @@ public class PlayerAttack : MonoBehaviour
     private float cooldownTimer = Mathf.Infinity;
     private bool attackTriggered = false;
 
+    SoundManager soundManager;
+
     private void Awake()
     {
         anim = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovement>();
+        soundManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<SoundManager>();
     }
 
     private void Update()
@@ -20,6 +23,7 @@ public class PlayerAttack : MonoBehaviour
         if (Input.GetMouseButton(0) && cooldownTimer > attackCooldown && playerMovement.canAttack())
         {
             Attack();
+            SoundManager.PlaySFX("slash");
         }
         
         // Cek status animasi
@@ -54,6 +58,7 @@ public class PlayerAttack : MonoBehaviour
                 projectile.SetDirection(Mathf.Sign(transform.localScale.x));
             }
         }
+        SoundManager.PlaySFX("fireball");
     }
 
     private int FindFireball()

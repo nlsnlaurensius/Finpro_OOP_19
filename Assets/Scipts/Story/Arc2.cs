@@ -3,9 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class Arc2 : MonoBehaviour
 {
-    [SerializeField] private Vector2 spawnPosition = new Vector2(10f, 1.6f);
-
-    [SerializeField] private float videoLength = 0f; 
+    [SerializeField] private Vector2 spawnPosition = new Vector2(-10.5f, -1.15f);
 
     private void OnEnable()
     {
@@ -14,23 +12,20 @@ public class Arc2 : MonoBehaviour
 
     private System.Collections.IEnumerator PlayVideoAndTransition()
     {
-        // Tunggu sampai video selesai
-        yield return new WaitForSeconds(videoLength);
-
         // Load Level 2
         SceneManager.LoadScene("Level 2", LoadSceneMode.Single);
 
-        // Tunggu scene selesai load
+        // Wait for the scene to load
         yield return new WaitForEndOfFrame();
 
-        // Dapatkan referensi player yang tersimpan
+        // Get the player reference after the scene is loaded
         GameObject player = LevelPortal.GetCachedPlayer();
         if (player != null)
         {
-            // Set posisi player
+            // Set player position for Level 2
             player.transform.position = spawnPosition;
 
-            // Aktifkan kembali komponen player
+            // Enable the player's components
             var rb = player.GetComponent<Rigidbody2D>();
             if (rb != null) rb.simulated = true;
 

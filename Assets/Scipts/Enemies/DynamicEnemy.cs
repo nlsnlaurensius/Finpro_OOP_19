@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class DynamicEnemy : MonoBehaviour
@@ -7,21 +5,24 @@ public class DynamicEnemy : MonoBehaviour
     [SerializeField] private float movementDistance;
     [SerializeField] private float speed = 0.5f;
     [SerializeField] private float damage = 10.0f;
-    private bool movingLeft = true; // Mulai dengan bergerak ke kiri
-    private float leftEdge;
+    [SerializeField] private float damageCooldown = 1f; // Cooldown antara damage
 
+    private bool movingLeft = true;
+    private float leftEdge;
     private float rightEdge;
+    private float lastDamageTime; // Waktu terakhir memberikan damage
+
+    private Animator anim; // Animator reference
 
     private void Awake()
     {
-        // Hitung batas kiri dan kanan
         leftEdge = transform.position.x - movementDistance;
         rightEdge = transform.position.x + movementDistance;
+        anim = GetComponent<Animator>(); // Initialize Animator
     }
 
     private void Update()
     {
-        // Mendapatkan posisi Y dan Z asli agar tidak berubah
         float yPos = transform.position.y;
         float zPos = transform.position.z;
 
@@ -30,11 +31,11 @@ public class DynamicEnemy : MonoBehaviour
             if (transform.position.x > leftEdge)
             {
                 transform.position = new Vector3(transform.position.x - speed * Time.deltaTime, yPos, zPos);
-                 MoveDirection(1);
+                FlipSprite(false);
             }
             else
             {
-                movingLeft = false; // Berubah arah ke kanan
+                movingLeft = false;
             }
         }
         else
@@ -42,35 +43,58 @@ public class DynamicEnemy : MonoBehaviour
             if (transform.position.x < rightEdge)
             {
                 transform.position = new Vector3(transform.position.x + speed * Time.deltaTime, yPos, zPos);
-                MoveDirection(-1);
+                FlipSprite(true);
             }
             else
             {
-                movingLeft = true; // Berubah arah ke kiri
+                movingLeft = true;
             }
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Cek jika tabrakan dengan Player
-        if (collision.collider.CompareTag("Player"))
+        DealDamageToPlayer(collision);
+        TriggerAttackAnimation();
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        // Memberikan damage berkelanjutan dengan cooldown
+        if (Time.time >= lastDamageTime + damageCooldown)
         {
-            // Ambil komponen Health dari Player
-            Health playerHealth = collision.collider.GetComponent<Health>();
+            DealDamageToPlayer(collision);
+            TriggerAttackAnimation();
+        }
+    }
+
+    private void DealDamageToPlayer(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            Health playerHealth = collision.GetComponent<Health>();
             if (playerHealth != null)
             {
                 playerHealth.TakeDamage(damage);
+                lastDamageTime = Time.time;
                 Debug.Log("Player terkena damage sebesar " + damage);
             }
+            SoundManager.PlaySFX("hit");
         }
     }
 
-    private void MoveDirection(int direction)
+    private void FlipSprite(bool facingRight)
     {
-        // Ubah arah tampilan enemy
         Vector3 newScale = transform.localScale;
-        newScale.x = Mathf.Abs(newScale.x) * direction; // Pastikan nilai X positif sebelum dikalikan
+        newScale.x = Mathf.Abs(newScale.x) * (facingRight ? 1 : -1);
         transform.localScale = newScale;
+    }
+
+    private void TriggerAttackAnimation()
+    {
+        if (anim != null)
+        {
+            anim.SetTrigger("attack");
+        }
     }
 }
